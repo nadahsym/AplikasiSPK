@@ -1,12 +1,15 @@
+# Nama Anggota: - Nada Ghaisani Hasyim - 140810230052
+#               - Siti Nailah Eko Putri Alawiyah - 140810230059
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 
-st.set_page_config(page_title="Decision Support System", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Decision Support System", layout="wide")
 
-# Judul Utama
-st.title("🎯 Sistem Pendukung Keputusan (DSS)")
-st.markdown("*Metode: SAW, WP, AHP, TOPSIS*")
+# Judul
+st.title("Decision Support System (DSS)")
+st.markdown("**Metode: SAW, WP, AHP, TOPSIS**")
 st.markdown("---")
 
 # Sidebar untuk memilih metode
@@ -32,7 +35,7 @@ elif "TOPSIS" in metode:
 
 # ==================== FUNGSI MANUAL (TANPA LIBRARY METODE) ====================
 
-def hitung_saw_manual(data, bobot, tipe):
+def hitung_saw(data, bobot, tipe):
     """Implementasi manual metode SAW
     
     Step 1: Normalisasi matriks X menjadi matriks R
@@ -44,6 +47,7 @@ def hitung_saw_manual(data, bobot, tipe):
     # Rumus normalisasi:
     # - Benefit: r_ij = x_ij / max(x_ij)
     # - Cost: r_ij = min(x_ij) / x_ij
+    
     matriks_r = [[0 for _ in range(n_krit)] for _ in range(n_alt)]
     
     for j in range(n_krit):
@@ -59,6 +63,7 @@ def hitung_saw_manual(data, bobot, tipe):
     
     # STEP 2: Hitung nilai preferensi V
     # V_i = Σ (w_j * r_ij)
+
     nilai_v = []
     for i in range(n_alt):
         v = 0
@@ -68,7 +73,7 @@ def hitung_saw_manual(data, bobot, tipe):
     
     return matriks_r, nilai_v
 
-def hitung_wp_manual(data, bobot, tipe):
+def hitung_wp(data, bobot, tipe):
     """Implementasi manual metode WP"""
     n_alt, n_krit = len(data), len(data[0])
     
@@ -94,7 +99,7 @@ def hitung_wp_manual(data, bobot, tipe):
     
     return w_perbaikan, vektor_s, vektor_v
 
-def hitung_ahp_manual(matrix):
+def hitung_ahp(matrix):
     """Implementasi manual metode AHP"""
     n = len(matrix)
     
@@ -119,7 +124,7 @@ def hitung_ahp_manual(matrix):
     
     return matrix_norm, bobot, lambda_max, ci, cr
 
-def hitung_topsis_manual(data, bobot, tipe):
+def hitung_topsis(data, bobot, tipe):
     """Implementasi manual metode TOPSIS"""
     n_alt, n_krit = len(data), len(data[0])
     
@@ -194,7 +199,7 @@ if "SAW" in metode:
     
     # Validasi bobot
     if abs(sum(bobot) - 1.0) > 0.01:
-        st.warning(f"⚠ Total bobot = {sum(bobot):.2f}. Sebaiknya total bobot = 1.0")
+        st.warning(f"⚠️Total bobot = {sum(bobot):.2f}. Sebaiknya total bobot = 1.0")
     
     # Input data matriks keputusan
     st.subheader("Matriks Keputusan")
@@ -209,16 +214,16 @@ if "SAW" in metode:
         data.append(row)
     
     df = pd.DataFrame(data, columns=kriteria, index=alternatif)
-    st.write("*Data Awal:*")
+    st.write("**Data Awal:**")
     st.dataframe(df)
     
     if st.button("Hitung SAW", type="primary"):
         # Tampilkan data asli dulu
-        st.write("*Matriks X (Data Awal):*")
+        st.write("**Matriks X (Data Awal):**")
         st.dataframe(df)
         
         # STEP 1: Normalisasi matriks X ke matriks R
-        st.subheader("📊 Step 1: Normalisasi Matriks (X → R)")
+        st.subheader("Step 1: Normalisasi Matriks (X → R)")
         st.latex(r"r_{ij} = \begin{cases} \frac{x_{ij}}{\max(x_{ij})} & \text{jika j adalah atribut benefit} \\ \frac{\min(x_{ij})}{x_{ij}} & \text{jika j adalah atribut cost} \end{cases}")
         
         # Tampilkan detail normalisasi per kriteria
@@ -226,33 +231,33 @@ if "SAW" in metode:
             col_values = [data[i][j] for i in range(n_alt)]
             if tipe[j] == "Benefit":
                 max_val = max(col_values)
-                st.write(f"{krit} (Benefit):** max = {max_val}")
+                st.write(f"**{krit} (Benefit):** max = {max_val}")
                 for i, alt in enumerate(alternatif):
                     st.write(f"  r{i+1}{j+1} = {data[i][j]}/{max_val} = {data[i][j]/max_val:.4f}")
             else:
                 min_val = min(col_values)
-                st.write(f"{krit} (Cost):** min = {min_val}")
+                st.write(f"**{krit} (Cost):** min = {min_val}")
                 for i, alt in enumerate(alternatif):
                     st.write(f"  r{i+1}{j+1} = {min_val}/{data[i][j]} = {min_val/data[i][j] if data[i][j] > 0 else 0:.4f}")
         
-        matriks_r, nilai_v = hitung_saw_manual(data, bobot, tipe)
+        matriks_r, nilai_v = hitung_saw(data, bobot, tipe)
         
         df_r = pd.DataFrame(matriks_r, columns=kriteria, index=alternatif)
-        st.write("*Matriks R (Hasil Normalisasi):*")
+        st.write("**Matriks R (Hasil Normalisasi):**")
         st.dataframe(df_r.round(4))
         
         # STEP 2: Perhitungan nilai V
-        st.subheader("📈 Step 2: Perhitungan Nilai Preferensi (V)")
+        st.subheader("Step 2: Perhitungan Nilai Preferensi (V)")
         st.latex(r"V_i = \sum_{j=1}^{n} w_j \times r_{ij}")
         
         # Tampilkan detail perhitungan
-        st.write("*Detail Perhitungan V:*")
+        st.write("**Detail Perhitungan V:**")
         for i, alt in enumerate(alternatif):
             perhitungan = " + ".join([f"({bobot[j]:.2f} × {matriks_r[i][j]:.4f})" for j in range(n_krit)])
-            st.write(f"V({alt}) = {perhitungan} = *{nilai_v[i]:.4f}*")
+            st.write(f"V({alt}) = {perhitungan} = **{nilai_v[i]:.4f}**")
         
         # Hasil akhir
-        st.subheader("🏆 Hasil Akhir SAW")
+        st.subheader("Hasil Akhir SAW")
         hasil = pd.DataFrame({
             'Alternatif': alternatif,
             'Nilai V': nilai_v
@@ -260,11 +265,11 @@ if "SAW" in metode:
         hasil['Ranking'] = range(1, len(hasil) + 1)
         
         st.dataframe(hasil)
-        st.success(f"🏆 Alternatif terbaik: *{hasil.iloc[0]['Alternatif']}* dengan nilai V = {hasil.iloc[0]['Nilai V']:.4f}")
+        st.success(f"Alternatif terbaik: **{hasil.iloc[0]['Alternatif']}** dengan nilai V = {hasil.iloc[0]['Nilai V']:.4f}")
 
 # ==================== METODE WP ====================
 elif "WP" in metode:
-    st.header("🔢 Weighted Product (WP)")
+    st.header("Weighted Product (WP)")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -293,7 +298,7 @@ elif "WP" in metode:
             tipe.append(st.selectbox(f"Tipe C{i+1}", ["Benefit", "Cost"], key=f"tipe_wp_{i}"))
     
     if abs(sum(bobot) - 1.0) > 0.01:
-        st.warning(f"⚠ Total bobot = {sum(bobot):.2f}. Sebaiknya total bobot = 1.0")
+        st.warning(f"⚠️ Total bobot = {sum(bobot):.2f}. Sebaiknya total bobot = 1.0")
     
     # Input data matriks keputusan
     st.subheader("Matriks Keputusan")
@@ -308,14 +313,14 @@ elif "WP" in metode:
         data.append(row)
     
     df = pd.DataFrame(data, columns=kriteria, index=alternatif)
-    st.write("*Data Awal:*")
+    st.write("**Data Awal:**")
     st.dataframe(df)
     
     if st.button("Hitung WP", type="primary"):
         # Hitung manual
-        w_perbaikan, vektor_s, vektor_v = hitung_wp_manual(data, bobot, tipe)
+        w_perbaikan, vektor_s, vektor_v = hitung_wp(data, bobot, tipe)
         
-        st.write("*Bobot Perbaikan (Cost = negatif):*")
+        st.write("**Bobot Perbaikan (Cost = negatif):**")
         st.write(pd.DataFrame({'Kriteria': kriteria, 'Bobot Asli': bobot, 'Bobot Perbaikan': w_perbaikan}))
         
         hasil = pd.DataFrame({
@@ -325,13 +330,13 @@ elif "WP" in metode:
         }).sort_values('Vektor V', ascending=False).reset_index(drop=True)
         hasil['Ranking'] = range(1, len(hasil) + 1)
         
-        st.write("*Hasil Perhitungan WP:*")
+        st.write("**Hasil Perhitungan WP:**")
         st.dataframe(hasil)
-        st.success(f"🏆 Alternatif terbaik: *{hasil.iloc[0]['Alternatif']}* dengan nilai V = {hasil.iloc[0]['Vektor V']:.4f}")
+        st.success(f"Alternatif terbaik: **{hasil.iloc[0]['Alternatif']}** dengan nilai V = {hasil.iloc[0]['Vektor V']:.4f}")
 
 # ==================== METODE AHP ====================
 elif "AHP" in metode:
-    st.header("⚖ Analytical Hierarchy Process (AHP)")
+    st.header("Analytical Hierarchy Process (AHP)")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -354,8 +359,8 @@ elif "AHP" in metode:
             alternatif.append(st.text_input(f"A{i+1}", value=f"Alternatif {i+1}", key=f"alt_ahp_{i}"))
     
     # STEP 1: Perbandingan Berpasangan Kriteria
-    st.subheader("📊 Step 1: Matriks Perbandingan Berpasangan Kriteria")
-    st.markdown("*Skala Saaty:* 1=Sama penting, 3=Sedikit lebih penting, 5=Lebih penting, 7=Sangat penting, 9=Mutlak lebih penting")
+    st.subheader("Step 1: Matriks Perbandingan Berpasangan Kriteria")
+    st.markdown("**Skala Saaty:** 1=Sama penting, 3=Sedikit lebih penting, 5=Lebih penting, 7=Sangat penting, 9=Mutlak lebih penting")
     
     matrix_kriteria = [[1.0 for _ in range(n_krit)] for _ in range(n_krit)]
     
@@ -373,11 +378,11 @@ elif "AHP" in metode:
             matrix_kriteria[j][i] = 1.0 / val if val > 0 else 1.0
     
     df_matrix_kriteria = pd.DataFrame(matrix_kriteria, columns=kriteria, index=kriteria)
-    st.write("*Matriks Perbandingan Kriteria:*")
+    st.write("**Matriks Perbandingan Kriteria:**")
     st.dataframe(df_matrix_kriteria.round(4))
     
     # STEP 2: Perbandingan Berpasangan Alternatif untuk Setiap Kriteria
-    st.subheader("📊 Step 2: Matriks Perbandingan Berpasangan Alternatif (per Kriteria)")
+    st.subheader("Step 2: Matriks Perbandingan Berpasangan Alternatif (per Kriteria)")
     
     matrices_alternatif = []
     for k in range(n_krit):
@@ -391,26 +396,26 @@ elif "AHP" in metode:
                         min_value=0.0,
                         value=1.0, 
                         step=0.1,
-                        key=f"ahp_alt_{k}{i}{j}",
+                        key=f"ahp_alt_{k}_{i}_{j}",
                         help=f"Untuk {kriteria[k]}, seberapa baik {alternatif[i]} dibanding {alternatif[j]}?"
                     )
                     matrix_alt[i][j] = float(val) if val > 0 else 1.0
                     matrix_alt[j][i] = 1.0 / val if val > 0 else 1.0
             
             df_matrix_alt = pd.DataFrame(matrix_alt, columns=alternatif, index=alternatif)
-            st.write(f"*Matriks Perbandingan Alternatif untuk {kriteria[k]}:*")
+            st.write(f"**Matriks Perbandingan Alternatif untuk {kriteria[k]}:**")
             st.dataframe(df_matrix_alt.round(4))
             
             matrices_alternatif.append(matrix_alt)
     
     if st.button("Hitung AHP", type="primary"):
-        st.subheader("🧮 Hasil Perhitungan AHP")
+        st.subheader("Hasil Perhitungan AHP")
         
         # Hitung bobot kriteria
-        st.write("### 1️⃣ Bobot Kriteria")
-        matrix_krit_norm, bobot_kriteria, lambda_max_krit, ci_krit, cr_krit = hitung_ahp_manual(matrix_kriteria)
+        st.write("### 1. Bobot Kriteria")
+        matrix_krit_norm, bobot_kriteria, lambda_max_krit, ci_krit, cr_krit = hitung_ahp(matrix_kriteria)
         
-        st.write("*Matriks Ternormalisasi Kriteria:*")
+        st.write("**Matriks Ternormalisasi Kriteria:**")
         st.dataframe(pd.DataFrame(matrix_krit_norm, columns=kriteria, index=kriteria).round(4))
         
         df_bobot_krit = pd.DataFrame({
@@ -420,22 +425,22 @@ elif "AHP" in metode:
         })
         st.dataframe(df_bobot_krit.round(4))
         
-        st.write(f"*λ max:* {lambda_max_krit:.4f}, *CI:* {ci_krit:.4f}, *CR:* {cr_krit:.4f}")
+        st.write(f"**λ max:** {lambda_max_krit:.4f}, **CI:** {ci_krit:.4f}, **CR:** {cr_krit:.4f}")
         if cr_krit <= 0.1:
             st.success("✅ Matriks kriteria konsisten (CR ≤ 0.1)")
         else:
             st.error("❌ Matriks kriteria tidak konsisten (CR > 0.1)")
         
         # Hitung prioritas alternatif untuk setiap kriteria
-        st.write("### 2️⃣ Prioritas Alternatif per Kriteria")
+        st.write("### 2. Prioritas Alternatif per Kriteria")
         prioritas_alternatif = []
         
         for k in range(n_krit):
-            matrix_alt_norm, bobot_alt, lambda_max_alt, ci_alt, cr_alt = hitung_ahp_manual(matrices_alternatif[k])
+            matrix_alt_norm, bobot_alt, lambda_max_alt, ci_alt, cr_alt = hitung_ahp(matrices_alternatif[k])
             prioritas_alternatif.append(bobot_alt)
             
-            with st.expander(f"📋 Detail {kriteria[k]}"):
-                st.write("*Matriks Ternormalisasi:*")
+            with st.expander(f"Detail {kriteria[k]}"):
+                st.write("**Matriks Ternormalisasi:**")
                 st.dataframe(pd.DataFrame(matrix_alt_norm, columns=alternatif, index=alternatif).round(4))
                 
                 df_prioritas = pd.DataFrame({
@@ -444,14 +449,14 @@ elif "AHP" in metode:
                 })
                 st.dataframe(df_prioritas.round(4))
                 
-                st.write(f"*λ max:* {lambda_max_alt:.4f}, *CI:* {ci_alt:.4f}, *CR:* {cr_alt:.4f}")
+                st.write(f"**λ max:** {lambda_max_alt:.4f}, **CI:** {ci_alt:.4f}, **CR:** {cr_alt:.4f}")
                 if cr_alt <= 0.1:
                     st.success("✅ Konsisten")
                 else:
                     st.error("❌ Tidak konsisten")
         
         # STEP 3: Perhitungan Skor Akhir (Perkalian Matriks)
-        st.write("### 3️⃣ Skor Akhir (Prioritas Alternatif × Bobot Kriteria)")
+        st.write("### 3. Skor Akhir (Prioritas Alternatif × Bobot Kriteria)")
         
         # Buat matriks prioritas (alternatif x kriteria)
         matriks_prioritas = []
@@ -460,7 +465,7 @@ elif "AHP" in metode:
             matriks_prioritas.append(row)
         
         df_matriks_prioritas = pd.DataFrame(matriks_prioritas, columns=kriteria, index=alternatif)
-        st.write("*Matriks Prioritas Alternatif:*")
+        st.write("**Matriks Prioritas Alternatif:**")
         st.dataframe(df_matriks_prioritas.round(4))
         
         # Hitung skor akhir
@@ -469,10 +474,10 @@ elif "AHP" in metode:
             skor = sum(matriks_prioritas[i][j] * bobot_kriteria[j] for j in range(n_krit))
             skor_akhir.append(skor)
         
-        st.write("*Detail Perhitungan Skor:*")
+        st.write("**Detail Perhitungan Skor:**")
         for i, alt in enumerate(alternatif):
             perhitungan = " + ".join([f"({matriks_prioritas[i][j]:.4f} × {bobot_kriteria[j]:.4f})" for j in range(n_krit)])
-            st.write(f"Skor({alt}) = {perhitungan} = *{skor_akhir[i]:.4f}*")
+            st.write(f"Skor({alt}) = {perhitungan} = **{skor_akhir[i]:.4f}**")
         
         # Hasil akhir dengan ranking
         hasil = pd.DataFrame({
@@ -481,13 +486,13 @@ elif "AHP" in metode:
         }).sort_values('Skor Akhir', ascending=False).reset_index(drop=True)
         hasil['Ranking'] = range(1, len(hasil) + 1)
         
-        st.write("### 🏆 Hasil Akhir AHP")
+        st.write("### Hasil Akhir AHP")
         st.dataframe(hasil)
-        st.success(f"🏆 Alternatif terbaik: *{hasil.iloc[0]['Alternatif']}* dengan skor {hasil.iloc[0]['Skor Akhir']:.4f}")
+        st.success(f"Alternatif terbaik: **{hasil.iloc[0]['Alternatif']}** dengan skor {hasil.iloc[0]['Skor Akhir']:.4f}")
 
 # ==================== METODE TOPSIS ====================
 elif "TOPSIS" in metode:
-    st.header("🎯 TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)")
+    st.header("Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -516,7 +521,7 @@ elif "TOPSIS" in metode:
             tipe.append(st.selectbox(f"Tipe C{i+1}", ["Benefit", "Cost"], key=f"tipe_topsis_{i}"))
     
     if abs(sum(bobot) - 1.0) > 0.01:
-        st.warning(f"⚠ Total bobot = {sum(bobot):.2f}. Sebaiknya total bobot = 1.0")
+        st.warning(f"⚠️ Total bobot = {sum(bobot):.2f}. Sebaiknya total bobot = 1.0")
     
     # Input data matriks keputusan
     st.subheader("Matriks Keputusan")
@@ -531,20 +536,20 @@ elif "TOPSIS" in metode:
         data.append(row)
     
     df = pd.DataFrame(data, columns=kriteria, index=alternatif)
-    st.write("*Data Awal:*")
+    st.write("**Data Awal:**")
     st.dataframe(df)
     
     if st.button("Hitung TOPSIS", type="primary"):
         # Hitung manual
-        data_norm, data_weighted, ideal_pos, ideal_neg, d_pos, d_neg, preferensi = hitung_topsis_manual(data, bobot, tipe)
+        data_norm, data_weighted, ideal_pos, ideal_neg, d_pos, d_neg, preferensi = hitung_topsis(data, bobot, tipe)
         
-        st.write("*Matriks Ternormalisasi:*")
+        st.write("**Matriks Ternormalisasi:**")
         st.dataframe(pd.DataFrame(data_norm, columns=kriteria, index=alternatif).round(4))
         
-        st.write("*Matriks Ternormalisasi Terbobot:*")
+        st.write("**Matriks Ternormalisasi Terbobot:**")
         st.dataframe(pd.DataFrame(data_weighted, columns=kriteria, index=alternatif).round(4))
         
-        st.write("*Solusi Ideal:*")
+        st.write("**Solusi Ideal:**")
         st.write(pd.DataFrame({
             'Kriteria': kriteria,
             'Ideal Positif (A+)': ideal_pos,
@@ -559,6 +564,8 @@ elif "TOPSIS" in metode:
         }).sort_values('Preferensi', ascending=False).reset_index(drop=True)
         hasil['Ranking'] = range(1, len(hasil) + 1)
         
-        st.write("*Hasil Perhitungan TOPSIS:*")
+        st.write("**Hasil Perhitungan TOPSIS:**")
         st.dataframe(hasil)
-        st.success(f"🏆 Alternatif terbaik: *{hasil.iloc[0]['Alternatif']}* dengan nilai preferensi {hasil.iloc[0]['Preferensi']:.4f}")
+        st.success(f"Alternatif terbaik: **{hasil.iloc[0]['Alternatif']}** dengan nilai preferensi {hasil.iloc[0]['Preferensi']:.4f}")
+
+st.markdown("---")
